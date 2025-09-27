@@ -6,7 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo isset($pageTitle) ? $pageTitle . ' - ' : ''; ?>Event Management System</title>
-    <link rel="stylesheet" href="/public/assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/style.css">
     <link rel="icon" href="https://cdn4.iconfinder.com/data/icons/new-year-filled-1/48/events___occasion_event_fireworks_stars_shooting_new_year_new_years-512.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -66,7 +66,7 @@
         </div>
         <div class="header-container-sub">
             <button id="more">
-                <img src="/public/assets/images/burgerbtn.png" alt="Menu" id="more-btn" style="width:100px; height:50px;">
+                <img src="assets/images/burgerbtn.png" alt="Menu" id="more-btn" style="width:100px; height:50px;">
             </button>
             <a href="?page=home"><button class="<?php echo ($page === 'home') ? 'active' : ''; ?>">Home</button></a>
             <a href="?page=venues"><button class="<?php echo ($page === 'venues') ? 'active' : ''; ?>">Book a venue</button></a>
@@ -113,7 +113,7 @@
     </section>
 
     <!-- Scripts -->
-    <script src="/public/assets/js/script.js"></script>
+    <script src="assets/js/script.js"></script>
     <?php if (isset($additionalJS)) echo $additionalJS; ?>
 </body>
 

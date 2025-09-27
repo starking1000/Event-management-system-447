@@ -6,7 +6,7 @@ ob_start();
 require_once CONFIG_PATH . '/database.php';
 
 // Get all venues
-$sql = "SELECT * FROM venues ORDER BY venue_name ASC";
+$sql = "SELECT * FROM venues ORDER BY name ASC";
 $result = $conn->query($sql);
 
 $additionalCSS = '
@@ -61,7 +61,7 @@ $additionalCSS = '
                         <img src="https://cdn1.iconfinder.com/data/icons/leto-travel-vacation/64/__hotel_resort_vacation-512.png" alt="Venue">
                     </div>
                     <div class="service-text">
-                        <h2><?php echo htmlspecialchars($venue['venue_name']); ?></h2>
+                        <h2><?php echo htmlspecialchars($venue['name']); ?></h2>
                         <p><?php echo htmlspecialchars($venue['description'] ?? 'Beautiful venue for your events'); ?></p>
                         <p><strong>Location:</strong> <?php echo htmlspecialchars($venue['location']); ?></p>
                         <p><strong>Capacity:</strong> <?php echo htmlspecialchars($venue['capacity']); ?> people</p>
@@ -69,7 +69,7 @@ $additionalCSS = '
                             <p><strong>Price:</strong> KSh <?php echo htmlspecialchars($venue['price']); ?></p>
                         <?php endif; ?>
 
-                        <a href="?page=create-event&venue=<?php echo urlencode($venue['venue_name']); ?>">
+                        <a href="?page=create-event&venue=<?php echo urlencode($venue['name']); ?>">
                             <button style="width:120px; height:40px;border:none;border-radius:5px;color:#fff;background-color:navy;">
                                 Book Now
                             </button>
