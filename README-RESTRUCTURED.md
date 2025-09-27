@@ -103,7 +103,55 @@ The application now uses clean URLs via a simple routing system:
 
 ## 🔧 Setup Instructions
 
-### 1. **Web Server Configuration**
+### 1. **Database Setup (Quick Start)**
+
+The easiest way to set up the database is using the automated script:
+
+```bash
+cd database/
+./setup.sh
+```
+
+This will:
+
+- Check MySQL service status
+- Create the `eventmanagement` database
+- Apply the complete schema
+- Optionally load sample data for testing
+
+#### Manual Database Setup
+
+If you prefer manual setup:
+
+```bash
+# 1. Create database
+mysql -u root -p -e "CREATE DATABASE eventmanagement;"
+
+# 2. Apply schema
+mysql -u root -p eventmanagement < database/schema.sql
+
+# 3. Load sample data (optional)
+mysql -u root -p eventmanagement < database/seeds/sample_data.sql
+```
+
+### 2. **Environment Configuration**
+
+Copy and configure the environment file:
+
+```bash
+cp .env.example .env
+```
+
+Update `.env` with your database credentials:
+
+```env
+DB_HOST=localhost
+DB_USERNAME=your_db_username
+DB_PASSWORD=your_db_password
+DB_DATABASE=eventmanagement
+```
+
+### 3. **Web Server Configuration**
 
 #### Apache
 
@@ -133,15 +181,16 @@ server {
 }
 ```
 
-### 2. **Database Configuration**
+#### PHP Development Server (Quick Testing)
 
-Update `/config/database.php` with your database credentials:
+For quick local testing:
 
-```php
-$conn = mysqli_connect("localhost", "username", "password", "database_name");
+```bash
+cd public/
+php -S localhost:8000
 ```
 
-### 3. **File Permissions**
+### 4. **File Permissions**
 
 Ensure proper permissions:
 
@@ -150,6 +199,7 @@ chmod 755 public/
 chmod 644 public/assets/css/*
 chmod 644 public/assets/js/*
 chmod 755 storage/ (if using file uploads)
+chmod +x database/setup.sh
 ```
 
 ## 📋 Available Routes

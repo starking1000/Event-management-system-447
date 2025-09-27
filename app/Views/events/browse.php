@@ -6,7 +6,7 @@ ob_start();
 require_once CONFIG_PATH . '/database.php';
 
 // Get all events
-$sql = "SELECT * FROM events ORDER BY date ASC";
+$sql = "SELECT * FROM events ORDER BY event_date ASC";
 $result = $conn->query($sql);
 
 $additionalCSS = '
@@ -64,11 +64,11 @@ $additionalCSS = '
                         <h2><?php echo htmlspecialchars($event['event_name']); ?></h2>
                         <p><strong>Venue:</strong> <?php echo htmlspecialchars($event['venue']); ?></p>
                         <p><strong>Time:</strong> <?php echo htmlspecialchars($event['time']); ?></p>
-                        <p><strong>Date:</strong> <?php echo htmlspecialchars($event['date']); ?></p>
+                        <p><strong>Date:</strong> <?php echo htmlspecialchars($event['event_date']); ?></p>
 
                         <?php
                         $currentDate = date("Y-m-d");
-                        $eventDate = $event['date'];
+                        $eventDate = $event['event_date'];
                         $diff = abs(round((strtotime($currentDate) - strtotime($eventDate)) / 86400));
 
                         if (strtotime($eventDate) >= strtotime($currentDate)) {
