@@ -1,3 +1,29 @@
+<?php
+// ------------------------------
+// Secure session configuration
+// ------------------------------
+if (session_status() === PHP_SESSION_NONE) {
+    session_set_cookie_params([
+        'lifetime' => 0,
+        'path' => '/',
+        'domain' => '',
+        'secure' => isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on',
+        'httponly' => true,
+        'samesite' => 'Strict'
+    ]);
+    session_start();
+}
+
+include('../Database/db.php');
+include('../csrf.php');
+
+// Generate CSRF token only once
+if (!isset($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = generateCSRFToken();
+}
+$csrf_token = $_SESSION['csrf_token'];
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -26,12 +52,11 @@
                   <p>Mon-Fri 9am-5pm</p>
                   <p>Sat 9am - 12pm</p>
                   
-                  <?php
-                    session_start();
-                        if(!$_SESSION['username']){
-                            echo '<a href="/login.html"><button style="width:150px;height:50px;border:none;background-color: navy;color:#fff;font-weight: bold;cursor:pointer;">Sign in </button></a>';
+                 <?php
+                        if(!isset($_SESSION['username'])){
+                            echo '<a href="/login.php"><button>Sign in</button></a>';
                         } else {
-                            echo $_SESSION['username'];
+                            echo "<strong>Welcome, " . htmlspecialchars($_SESSION['username']) . "</strong>";
                         }
                     ?>
               </div>
@@ -40,7 +65,7 @@
     </section>
     <section class="HeaderContainer">
       <div class="header-container">
-        <a href="../"><button class="active">Home</button> </a>
+        <a href="../index.html"><button class="active">Home</button> </a>
         <a href="../BookVenue.php"><button>Book a venue</button> </a>
         <a href="../BrowseEvents.php"><button>Browse Events</button> </a>
         <a href="../Forms/createVenue.php"><button>Create Venue</button> </a>
@@ -56,7 +81,7 @@
             style="width: 100px; height: 50px"
           />
         </button>
-        <a href="../"><button class="active">Home</button> </a>
+        <a href="../index.php"><button class="active">Home</button> </a>
         <a href="../BookVenue.php"><button>Book a venue</button> </a>
         <a href="../BrowseEvents.php"><button>Browse Events</button> </a>
         <a href="../Forms/createEvent.php"><button>Create Event</button> </a>
@@ -64,36 +89,54 @@
         <a href="../Panel.php"><button>Admin Panel</button></a>
       </div>
     </section>
+
     <?php
-    include("../Database/db.php");
-    if(isset($_REQUEST['user_name'])){
-        $user_name = $_REQUEST['user_name'];
-        $event_name = $_REQUEST['event_name'];
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-        $sql = "INSERT INTO reservations VALUES (null, '$user_name','$event_name', null)";
-        $result = mysqli_query($conn, $sql);
+    $user_name = $_POST['user_name'] ?? '';
+    $event_name = $_POST['event_name'] ?? '';
+    $token = $_POST['csrf_token'] ?? '';
 
-        if ($result){
-            echo " <div class='container'> SUCCESSFULLY SAVED THE DATA'<br/>
-            <a href='../BrowseEvents.php'>Browse more events</a>
-            </div>";
-        } else {
-            echo " <div class='container'>Error saving data <br/>
-            <a href='./CreateReservation.php'>Try again</a>
-            </div>";
-        }
+    // Validate CSRF
+    if (!validateCSRFToken($token)) {
+        die("<div class='container' style='color:red;'>CSRF validation failed. Please reload the page.</div>");
+    }
+
+    // Validate input
+    if (empty($user_name) || empty($event_name)) {
+        echo "<div class='container' style='color:red;'>Please fill in all required fields.</div>";
     } else {
+        // Secure Insert
+        $stmt = $conn->prepare("INSERT INTO reservations (user_name, event_name) VALUES (?, ?)");
+        $stmt->bind_param("ss", $user_name, $event_name);
+
+        if ($stmt->execute()) {
+            echo "<div class='container'>Successfully added reservation!<br/>
+            <a href='../BrowseEvents.php'>Browse more events</a></div>";
+        } else {
+            echo "<div class='container'>Error saving data.<br/>
+            <a href='./createReservation.php'>Try again</a></div>";
+        }
+
+        $stmt->close();
+    }
+} else {
+   
 ?>
- <div class="container">
-        <h3>Rsvp Creation Form</h3>
-        <form method="POST">
-            <input type="text" name="user_name" id="user_name" placeholder=" Enter User Name">
-            <input type="text" name="event_name" id="event_name" value="<?php echo $_GET['venue_name']?>">
-            <input type="submit" value="submit"/>
+    <div class="container">
+        <h3>RSVP Creation Form</h3>
+        <?php
+        $venue_name = isset($_GET['venue_name']) ? $_GET['venue_name'] : '';
+        ?>
+
+        <form method="POST" action="">
+            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
+            <input type="text" name="user_name" id="user_name" placeholder="Enter User Name" required>
+            <input type="text" name="event_name" id="event_name" value="<?php echo htmlspecialchars($venue_name); ?>" placeholder="Event Name" required>
+            <input type="submit" value="Submit"/>
         </form>
     </div>
 <?php
-
 }
 ?>
    

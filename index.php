@@ -1,4 +1,18 @@
 
+<?php
+// Secure cookie and session configuration
+session_set_cookie_params([
+    'lifetime' => 0, // Expires when the browser closes
+    'path' => '/',
+    'domain' => '', // Leave empty for localhost or specify domain, e.g., 'example.com'
+    'secure' => isset($_SERVER['HTTPS']), // True only if using HTTPS
+    'httponly' => true, // Prevent JavaScript access to the cookie
+    'samesite' => 'Strict' // Mitigates CSRF attacks
+]);
+
+session_start();
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -30,8 +44,18 @@
                   <h5>Operational Hours</h5>
                   <p>Mon-Fri 9am-5pm</p>
                   <p>Sat 9am - 12pm</p>
-                  
-                  <a href="/login.html"><button style="width:150px;height:50px;border:none;background-color: navy;color:#fff;font-weight: bold;cursor:pointer;">Sign in </button></a>
+                 <?php if (isset($_SESSION['username'])): ?>
+    <div class="dropdown">
+        <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+            <?php echo htmlspecialchars($_SESSION['username']); ?>
+        </button>
+        <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="logout.php">Logout</a></li>
+        </ul>
+    </div>
+<?php else: ?>
+    <a href="login.php" class="btn btn-primary">Sign In</a>
+<?php endif; ?>
               </div>
           </div>
       </div>
@@ -58,9 +82,9 @@
     <section class="CarouselContainer">
         <div class="carousel">
             <div class="slides">
-                <img src="https://source.unsplash.com/1000x200/?school" alt="slide image" class="slide">
-                <img src="https://source.unsplash.com/1000x200/?hotel" alt="slide image" class="slide">
-                <img src="https://source.unsplash.com/1000x200/?park" alt="slide image" class="slide">
+                <img src="https://cdn.pixabay.com/photo/2018/09/05/08/05/party-3655712_640.jpg" alt="slide image" class="slide">
+                <img src="https://cdn.pixabay.com/photo/2017/07/21/23/57/concert-2527495_640.jpg" alt="slide image" class="slide">
+                <img src="https://images.unsplash.com/photo-1531058020387-3be344556be6?auto=format&fit=crop&w=1200&q=80" alt="slide image" class="slide">
             </div>
             <div class="controls">
                 <div class="control prev-slide">&#9668;</div>
@@ -86,7 +110,7 @@
             <h1>Some Events</h1>
           
             <div class="grid-left">
-              <img class="logo-images" src="https://source.unsplash.com/200x150/?graduation"/>
+              <img class="logo-images" src="https://images.unsplash.com/photo-1523580846011-d3a5bc25702b?auto=format&fit=crop&w=800&q=80"/>
               <span class="image-description">
                 <strong>Graduation Party</strong><br>
                 see Locations
@@ -95,7 +119,7 @@
           
           
             <div class="grid-right">
-              <img class="logo-images" src="https://source.unsplash.com/200x150/?wedding" />
+              <img class="logo-images" src="https://images.unsplash.com/photo-1520854221256-17451cc331bf?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTh8fHdlZGRpbmclMjBwbGFubmluZ3xlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&q=60&w=500" />
               <span class="image-description">
                 <strong>Wedding Partys</strong><br>
                 See Locations
@@ -104,7 +128,7 @@
           
           
             <div class="grid-left">
-              <img class="logo-images" src="https://source.unsplash.com/200x150/?party" />
+              <img class="logo-images" src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=400&q=80" />
               <span class="image-description">
                 <strong>Meet ups</strong><br>
                 
@@ -114,7 +138,7 @@
           
           
             <div class="grid-right">
-              <img class="logo-images" src="https://source.unsplash.com/200x150/?cocktails" />
+              <img class="logo-images" src="https://plus.unsplash.com/premium_photo-1679547202671-f9dbbf466db4?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8Y29uZmVyZW5jZXxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&q=60&w=500" />
               <span class="image-description">
                 <strong>Conferences</strong><br>
               
@@ -124,7 +148,7 @@
           
           
             <div class="grid-left">
-              <img class="logo-images" src="https://source.unsplash.com/200x150/?birthday" />
+              <img class="logo-images" src="https://images.unsplash.com/photo-1527529482837-4698179dc6ce?auto=format&fit=crop&w=800&q=80" />
               <span class="image-description">
                 <strong>Farewell Party's</strong><br>
                 see locations
@@ -133,7 +157,7 @@
           
           
             <div class="grid-right">
-              <img class="logo-images" src="https://source.unsplash.com/200x150/?graduation" />
+              <img class="logo-images" src="https://images.unsplash.com/photo-1566737236500-c8ac43014a67?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8N3x8cGFydHl8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&q=60&w=500" />
               <span class="image-description">
                 <strong>End year Party's</strong><br>
                 See Locations

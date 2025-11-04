@@ -1,3 +1,17 @@
+<?php
+// Secure cookie and session configuration
+session_set_cookie_params([
+    'lifetime' => 0, // Expires when the browser closes
+    'path' => '/',
+    'domain' => '', // Leave empty for localhost or specify domain, e.g., 'example.com'
+    'secure' => isset($_SERVER['HTTPS']), // True only if using HTTPS
+    'httponly' => true, // Prevent JavaScript access to the cookie
+    'samesite' => 'Strict' // Mitigates CSRF attacks
+]);
+
+session_start();
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -48,14 +62,14 @@
                   <p>Mon-Fri 9am-5pm</p>
                   <p>Sat 9am - 12pm</p>
                   
-                  <a href="/login.html"><button style="width:150px;height:50px;border:none;background-color: navy;color:#fff;font-weight: bold;cursor:pointer;">Sign in </button></a>
+                  <a href="/login.php"><button style="width:150px;height:50px;border:none;background-color: navy;color:#fff;font-weight: bold;cursor:pointer;">Sign in </button></a>
               </div>
           </div>
       </div>
   </section>
     <section class="HeaderContainer">
         <div class="header-container">
-           <a href="/" ><button class="active">Home</button> </a>
+           <a href="index.php" ><button class="active">Home</button> </a>
            <a href="BookVenue.php"><button>Book a venue</button> </a>
            <a href="BrowseEvents.php"><button>Browse Events</button> </a>
            <a href="Forms/createEvent.php"><button>Create Event</button> </a>
@@ -64,7 +78,7 @@
         </div>
         <div class="header-container-sub">
             <button id="more"> <img src="./img/burgerbtn.png " alt="" id="more-btn" style="width:100px; height:50px;">  </button> 
-            <a href="/" ><button class="active">Home</button> </a>
+            <a href="index.php" ><button class="active">Home</button> </a>
             <a href="BookVenue.php"><button>Book a venue</button> </a>
             <a href="BrowseEvents.php"><button>Browse Events</button> </a>
             <a href="Forms/createEvent.php"><button>Create Event</button> </a>
@@ -81,11 +95,11 @@
             </div>
             <div class="panel-item">
                 <h4>Events</h4>
-                <a href="allEvents.php">All Events</a>
+                <a href="BrowseEvents.php">All Events</a>
             </div>
             <div class="panel-item">
                 <h4>Venues</h4>
-                <a href="AllVenues.php">all venues</a>
+                <a href="BookVenues.php">all venues</a>
             </div>
         </div>
     </section>
@@ -107,8 +121,7 @@
                 </div>
                 <div class="footer-main-sub">
                     <h3>Information</h3>
-                    <p><a href="">Browse Events</a></p>
-                    <p><a href="">Browse Events</a></p>
+                    <p><a href="BrowseEvents.php">Browse Events</a></p>
                     <p><a href="">Register for an event</a></p>
                 </div>
             </div>

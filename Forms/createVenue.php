@@ -1,3 +1,21 @@
+<?php
+// Secure cookie and session configuration
+session_set_cookie_params([
+    'lifetime' => 0, // Expires when the browser closes
+    'path' => '/',
+    'domain' => '', // Leave empty for localhost or specify domain, e.g., 'example.com'
+    'secure' => isset($_SERVER['HTTPS']), // True only if using HTTPS
+    'httponly' => true, // Prevent JavaScript access to the cookie
+    'samesite' => 'Strict' // Mitigates CSRF attacks
+]);
+
+session_start();
+
+include('../csrf.php');
+$csrf_token = generateCSRFToken();
+?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -27,11 +45,10 @@
                   <p>Sat 9am - 12pm</p>
                   
                   <?php
-                    session_start();
-                        if(!$_SESSION['username']){
-                            echo '<a href="/login.html"><button style="width:150px;height:50px;border:none;background-color: navy;color:#fff;font-weight: bold;cursor:pointer;">Sign in </button></a>';
+                        if(!isset($_SESSION['username'])){
+                            echo '<a href="/login.php"><button>Sign in</button></a>';
                         } else {
-                            echo $_SESSION['username'];
+                            echo "<strong>Welcome, " . htmlspecialchars($_SESSION['username']) . "</strong>";
                         }
                     ?>
               </div>
@@ -40,7 +57,7 @@
     </section>
     <section class="HeaderContainer">
       <div class="header-container">
-        <a href="../"><button>Home</button> </a>
+        <a href="../index.php"><button>Home</button> </a>
         <a href="../BookVenue.php"><button>Book a venue</button> </a>
         <a href="../BrowseEvents.php"><button>Browse Events</button> </a>
         <a href="../Forms/createVenue.php" class="active"><button>Create Venue</button> </a>
@@ -64,37 +81,38 @@
         <a href="../Panel.php"><button>Admin Panel</button></a>
       </div>
     </section>
-    <?php
+ <?php
     include("../Database/db.php");
-    // $targetDir = "uploads/";
-    // $stausMsg = '';
-    // $fileName = basename($_FILES["file"]["name"]);
-    // $targetFilePath = $targetDir .$fileName;
-    // $fileType = pathinfo($targetFilePath,PATHINFO_EXTENSION);
-    // $allowtypes = array('jpg','png','jpeg','gif','pdf');
-    if(isset($_REQUEST['venue_name'])){
-        $venue_name = $_REQUEST['venue_name'];
-        $location = $_REQUEST['location'];
-        $capacity = $_REQUEST['capacity'];
-        $price = $_REQUEST['price'];
 
-        $sql = "INSERT INTO venues VALUES (null, '$venue_name','$location','$capacity', '$fileName', '$price')";
-        $result = mysqli_query($conn, $sql);
+    if (isset($_POST['venue_name'])) {
+        $venue_name = trim($_POST['venue_name']);
+        $location = trim($_POST['location']);
+        $capacity = intval($_POST['capacity']);
+        $price = floatval($_POST['price']);
+          
 
-        if ($result){
-            echo " <div class='container'> SUCCESSFULLY SAVED THE DATA'<br/>
-            <a href='../Dashboard/index.php'>log in</a>
-            </div>";
+        // Prepared statement
+        $stmt = $conn->prepare("INSERT INTO venues (venue_name, location, capacity, price) VALUES (?, ?, ?, ?)");
+        $stmt->bind_param("ssid", $venue_name, $location, $capacity, $price, );
+
+        if ($stmt->execute()) {
+            echo "<div class='container' style='color:green; text-align:center;'>
+                    ✅ Venue successfully added!<br>
+                    <a href='../BrowseEvents.php'>View Events</a>
+                  </div>";
         } else {
-            echo " <div class='container'>Error saving data <br/>
-            <a href='../Dashboard/index.php'>Try again</a>
-            </div>";
+            echo "<div class='container' style='color:red; text-align:center;'>
+                    ❌ Error: " . htmlspecialchars($stmt->error) . "
+                  </div>";
         }
+
+        $stmt->close();
     } else {
-?>
+    ?>
  <div class="container">
         <h3 style="text-align:center; margin-top:30px;">Event Creation Form</h3>
         <form method="POST" enctype="multipart/form-data">
+            <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
             <input type="text" name="venue_name" id="venue_name" placeholder="Venue Name">
             <input type="text" name="location" id="location" placeholder="Location">
             <input type="number" name="capacity" id="capacity" placeholder="Capacity">

@@ -33,18 +33,20 @@
                     <h5>Operational Hours</h5>
                     <p>Mon-Fri 9am-5pm</p>
                     <p>Sat 9am - 12pm</p>
-                    {% if user.is_authenticated %}
-                    <button style="width:150px;height:50px;border:none;background-color: navy;color:#fff;font-weight: bold;text-transform: uppercase;">{{user.username}}</button>
-                    {% else %}
-                    <a href="/login.html"><button style="width:150px;height:50px;border:none;background-color: navy;color:#fff;font-weight: bold;cursor:pointer;">Sign in </button></a>
-                    {% endif %}
+                    <?php
+                        if(!isset($_SESSION['username'])){
+                            echo '<a href="/signup.php"><button>Sign in</button></a>';
+                        } else {
+                            echo "<strong>Welcome, " . htmlspecialchars($_SESSION['username']) . "</strong>";
+                        }
+                    ?>
                 </div>
             </div>
         </div>
     </section>
     <section class="HeaderContainer">
         <div class="header-container">
-           <a href="/" ><button class="active">Home</button> </a>
+           <a href="index.php" ><button class="active">Home</button> </a>
            <a href="BookVenue.php"><button>Book a venue</button> </a>
            <a href="BrowseEvents.php"><button>Browse Events</button> </a>
            <a href="Forms/createEvent.php"><button>Create Event</button> </a>
@@ -53,7 +55,7 @@
         </div>
         <div class="header-container-sub">
             <button id="more"> <img src="./img/burgerbtn.png " alt="" id="more-btn" style="width:100px; height:50px;">  </button> 
-            <a href="/" ><button class="active">Home</button> </a>
+            <a href="index.php" ><button class="active">Home</button> </a>
             <a href="BookVenue.php"><button>Book a venue</button> </a>
             <a href="BrowseEvents.php"><button>Browse Events</button> </a>
             <a href="Forms/createEvent.php"><button>Create Event</button> </a>
@@ -62,28 +64,42 @@
         </div>
     </section>
     <?php
-        include("./Database/db.php");
-        session_start();
-        if(isset($_POST['username'])){
-            $username = stripslashes($_POST['username']);//escapes any slashes from the data input and reads them as texts 
-            $username = mysqli_real_escape_string($conn, $username);// escapes any other special characters from the input and reads them as texts
-            $password = stripslashes($_POST['password']);
-            $password =mysqli_real_escape_string ($conn, $password);
-            $sql = "SELECT * FROM `users`  WHERE username='$username' AND password='".md5($password)."'";
-            $result = mysqli_query($conn, $sql) or die(mysqli_error());
-            $rows = mysqli_num_rows($result);
-            if ($rows == 1){
-            //Retrieving data from$Session variable
-                $_SESSION['username'] = $username;//if username, role and email are valid 
-                //redirect to user dashboard
-                header("Location:./BookVenue.php");//redirects to dashboard
-            
-            } else {// if data provided is invalid renders an error message
-                echo " <div class='form-container'>Inalid Username/Password'<br/>
-                <a href='login.php'>log in</a>
-                </div>";
+    include("./Database/db.php");
+    session_start();
+
+    if ($_SERVER["REQUEST_METHOD"] === "POST") {
+        $username = trim($_POST['username']);
+        $password = trim($_POST['password']);
+
+        // Prepared statement for security
+        $stmt = $conn->prepare("SELECT id, username, hashed_password, role FROM users WHERE username = ?");
+        $stmt->bind_param("s", $username);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        if ($result && $result->num_rows === 1) {
+            $user = $result->fetch_assoc();
+
+            if (password_verify($password, $user['hashed_password'])) {
+                // Successful login
+                $_SESSION['id'] = $user['id'];
+                $_SESSION['username'] = $user['username'];
+                $_SESSION['role'] = $user['role'];
+
+                if ($user['role'] === 'admin') {
+                    header("Location: Panel.php");
+                } else {
+                    header("Location: BookVenue.php");
+                }
+                exit;
+            } else {
+                echo "<script>alert('Invalid password');</script>";
             }
         } else {
+            echo "<script>alert('User not found');</script>";
+        }
+        $stmt->close();
+    }
     ?>
     <section class="FormCon">
         <form action="" method="POST" style="margin:auto; max-width:500px; width:80vw;">
@@ -91,11 +107,11 @@
             <input id="text" type="text" placeholder="Your name here :" name="username" style="width:100%; height:50px; border:1px solid blue; border-radius:5px" ><br><br>
             <input id="text" type="password" placeholder=" Enter password " name="password" style="width:100%; height:50px; border:1px solid blue; border-radius:5px"><br><br>
             <input id="button" style="width:50%; height:50px; background-color:blue; color:#fff; font-weight:bold; border:none; border-radius:5px;margin:auto; cursor:pointer;" type="submit" value = "Login"> <br><br>
-            <a href="register.php">Signup Here</a>
+            <a href="signup.php">Signup Here</a>
         </form>
-        </section><?php }?>
-    <
-    <secttion class="FooterContainer">
+    </section>
+
+    <section class="FooterContainer">
         <div class="footer-home">
             <div class="footer-main">
                 <div class="footer-main-sub">
